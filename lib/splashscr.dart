@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToHome() async {
-    await Future.delayed(const Duration(milliseconds: 700), () {});
+    await Future.delayed(const Duration(milliseconds: 1300), () {});
     
     // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
