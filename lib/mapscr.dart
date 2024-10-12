@@ -1,3 +1,4 @@
+import 'dart:async'; // Import to use StreamSubscription
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart'; // For getting location
@@ -23,7 +24,13 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   LatLng? currentLocation; // Variable to store current location
-  bool isInUniversityArea =false; // Flag to check if the user is inside the university
+  bool isInUniversityArea =
+      false; // Flag to check if the user is inside the university
+  StreamSubscription<Position>?
+      _positionStreamSubscription; // To manage the location stream
+  double _currentZoom = 15.15; // Variable to store the current zoom level
+  final MapController _mapController =
+      MapController(); // To control map zoom and center
 
   List<LatLng> borderCoordinates = [
     LatLng(33.275086, 44.372009), // Southwest
@@ -50,58 +57,35 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _determinePosition(); // Fetch user's location when the app starts
+    _startLocationStream(); // Start listening for location updates
   }
 
-  // Function to determine the current position
-  Future<void> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  // Function to start listening for location updates
+  void _startLocationStream() {
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10, // Update when the user moves 10 meters
+      ),
+    ).listen((Position position) {
+      LatLng userLocation = LatLng(position.latitude, position.longitude);
 
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled, handle this case
-      return;
-    }
+      // Check if the user is within the polygon defined by borderCoordinates
+      bool insideBounds = _isPointInPolygon(userLocation, borderCoordinates);
 
-    // Check for location permission
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permission denied, handle this case
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle this case
-      return;
-    }
-
-    // Get the current location
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    LatLng userLocation = LatLng(position.latitude, position.longitude);
-
-    // Check if the user is within the polygon defined by borderCoordinates
-    bool insideBounds = _isPointInPolygon(userLocation, borderCoordinates);
-
-    setState(() {
-      if (insideBounds) {
-        currentLocation = userLocation;
-        isInUniversityArea = true;
-      } else {
-        isInUniversityArea = false;
-        currentLocation = null;
-        // Optionally, display a message that the user is outside the university area
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You are outside the university area!')),
-        );
-      }
+      setState(() {
+        if (insideBounds) {
+          currentLocation = userLocation;
+          isInUniversityArea = true;
+        } else {
+          isInUniversityArea = false;
+          currentLocation = null;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('You are outside the university area!')),
+          );
+        }
+      });
     });
   }
 
@@ -121,6 +105,13 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     return inside;
+  }
+
+  @override
+  void dispose() {
+    _positionStreamSubscription
+        ?.cancel(); // Cancel the location stream when the widget is disposed
+    super.dispose();
   }
 
   @override
@@ -151,69 +142,122 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: FlutterMap(
-        options: MapOptions(
-          center: currentLocation ??
-          LatLng(33.2794595,44.378828), // Fallback to a default center if not inside university
-          zoom: 15.15, // Set initial zoom level
-          maxZoom: 18.49, // Maximum zoom allowed
-          minZoom: 15.5,
-          maxBounds: alNahrainBounds,
-        ),
+      body: Stack(
         children: [
-          openStreetMapTileLayer,
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: borderCoordinates,
-                strokeWidth: 6.0, // Thickness of the border
-                color: const Color.fromARGB(143, 30, 33, 124), // Border color
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              center: currentLocation ??
+                  LatLng(33.2794595, 44.378828), // Fallback center
+              zoom: _currentZoom,
+              maxZoom: 18.49, // Maximum zoom allowed
+              minZoom: 15.5,
+              maxBounds: alNahrainBounds,
+            ),
+            children: [
+              openStreetMapTileLayer,
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: borderCoordinates,
+                    strokeWidth: 6.0,
+                    color: const Color.fromARGB(149, 30, 33, 124),
+                  ),
+                ],
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(33.280084, 44.375086),
+                    builder: (ctx) => Icon(
+                      Icons.location_on_rounded,
+                      size: markerSize,
+                      color: nharaincol,
+                    ),
+                  ),
+                  Marker(
+                    point: LatLng(33.277599, 44.379208),
+                    builder: (ctx) => Icon(
+                      Icons.location_on_rounded,
+                      size: markerSize,
+                      color: nharaincol,
+                    ),
+                  ),
+                  Marker(
+                    point: LatLng(33.278353, 44.375082),
+                    builder: (ctx) => GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => const DepartmentsListScreen(),
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        Icons.location_on_rounded,
+                        size: markerSize,
+                        color: const Color.fromARGB(255, 103, 14, 248),
+                      ),
+                    ),
+                  ),
+                  if (currentLocation != null)
+                    Marker(
+                      point: currentLocation!,
+                      builder: (ctx) => Icon(
+                        Icons.location_on,
+                        size: markerSize,
+                        color: const Color.fromARGB(255, 163, 8, 8),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: LatLng(33.280084, 44.375086),
-                builder: (ctx) => Icon(
-                  Icons.border_color_outlined,
-                  size: markerSize,
-                  color: nharaincol,
-                ),
-              ),
-              Marker(
-                point: LatLng(33.277599, 44.379208),
-                builder: (ctx) =>
-                    Icon(Icons.mosque, size: markerSize, color: nharaincol),
-              ),
-              Marker(
-                point: LatLng(33.278353, 44.375082),
-                builder: (ctx) => GestureDetector(
-                  onTap: () {
-                    // Direct navigation without wrapping in WidgetsBinding
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => const DepartmentsListScreen(),
-                      ),
-                    );
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  heroTag: 'zoomIn',
+                  onPressed: () {
+                    setState(() {
+                      _currentZoom = (_currentZoom + 0.5).clamp(15.5, 18.49);
+                      _mapController.move(_mapController.center, _currentZoom);
+                    });
                   },
-                  child: Icon(
-                    Icons.location_on_rounded,
-                    size: markerSize,
-                    color: const Color.fromARGB(255, 103, 14, 248),
-                  ),
+                  child: const Icon(Icons.zoom_in),
                 ),
-              ),
-              if (currentLocation !=null) // Show user location marker if available
-                Marker(
-                  point: currentLocation!,
-                  builder: (ctx) => Icon(
-                    Icons.location_on,
-                    size: markerSize,
-                    color: const Color.fromARGB(255, 163, 8, 8),
-                  ),
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  heroTag: 'zoomOut',
+                  onPressed: () {
+                    setState(() {
+                      _currentZoom = (_currentZoom - 0.5).clamp(15.5, 18.49);
+                      _mapController.move(_mapController.center, _currentZoom);
+                    });
+                  },
+                  child: const Icon(Icons.zoom_out),
                 ),
-            ],
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  heroTag: 'currentLocation',
+                  onPressed: () {
+                    if (currentLocation != null) {
+                      _mapController.move(currentLocation!, _currentZoom);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Current location is not available, you should be in the UNV .'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Icon(Icons.my_location),
+                ),
+              ],
+            ),
           ),
         ],
       ),
