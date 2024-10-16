@@ -1,6 +1,6 @@
 // departments_list.dart
 import 'package:flutter/material.dart';
-import 'package:nahrain_univ/about_screen.dart';
+import 'package:nahrain_univ/drawer/main_drawer.dart';
 import 'package:nahrain_univ/markerdet/department_data.dart';
 import 'package:nahrain_univ/markerdet/departmentdet.dart'; // For the detail screen
 
@@ -12,12 +12,9 @@ class DepartmentsListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Engineering Departments'),
-        actions: [IconButton(onPressed: (){
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (ctx)=>const AboutScreen())
-          );
-        }, icon: const Icon(Icons.menu))],
+        centerTitle: true,
       ),
+      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139)),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(

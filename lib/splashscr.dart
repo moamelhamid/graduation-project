@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nahrain_univ/mapscr.dart';
+import 'package:nahrain_univ/sign_in_up/signin.dart';
 
 
 
@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     
     // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const MyHomePage()),
+      MaterialPageRoute(builder: (context) => const SignInScreen()),
     );
   }
 

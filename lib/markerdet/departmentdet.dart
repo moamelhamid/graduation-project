@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:nahrain_univ/about_screen.dart';
+import 'package:nahrain_univ/drawer/main_drawer.dart';
 import 'package:nahrain_univ/markerdet/department_data.dart';
 
 class DepartmentDetailScreen extends StatefulWidget {
@@ -24,15 +24,9 @@ class _DepartmentDetailScreenState extends State<DepartmentDetailScreen> {
         title: Text(widget.department.name),
         centerTitle: true, // Center the title for better alignment
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctx) => const AboutScreen()));
-              },
-              icon: const Icon(Icons.menu))
-        ], // Darker color for a sleek look
+    
       ),
+      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
