@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -92,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _checkLocationService() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Location services are disabled. Please enable them in your settings.')),
@@ -115,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
@@ -200,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      endDrawer: AppDrawer(nharaincol: nharaincol),
+      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: false,),
       body: Stack(
         children: [
           FlutterMap(

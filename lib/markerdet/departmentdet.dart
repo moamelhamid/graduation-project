@@ -26,7 +26,7 @@ class _DepartmentDetailScreenState extends State<DepartmentDetailScreen> {
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
     
       ),
-      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139)),
+      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: false,),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

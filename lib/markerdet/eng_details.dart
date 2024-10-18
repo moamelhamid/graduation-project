@@ -14,7 +14,7 @@ class DepartmentsListScreen extends StatelessWidget {
         title: const Text('Engineering Departments'),
         centerTitle: true,
       ),
-      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139)),
+      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: false,),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(

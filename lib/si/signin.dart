@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nahrain_univ/mapscr.dart';
-import 'package:nahrain_univ/sign_in_up/sing_up.dart';
+import 'package:nahrain_univ/si/sing_up.dart';
+
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});

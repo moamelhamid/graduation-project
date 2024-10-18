@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:nahrain_univ/si/signin.dart';
 import 'about_screen.dart';
 import 'lecture_schedule_screen.dart';
 import 'notifications_screen.dart';
-import 'profile_screen.dart'; // Import the Profile screen
+import 'profile_screen.dart';
+ // Import the Sign-In screen
 
 class AppDrawer extends StatelessWidget {
   final Color nharaincol;
+  final bool isSignedIn;
 
-  const AppDrawer({super.key, required this.nharaincol});
+  const AppDrawer({super.key, required this.nharaincol, required this.isSignedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -32,29 +35,62 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.account_circle),
-            title: const Text('Profile'),
+            title: Text(
+              'Profile',
+              style: TextStyle(
+                color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
+              ),
+            ),
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => const ProfileScreen()),
-              );
+              if (isSignedIn) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const ProfileScreen()),
+                );
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const SignInScreen()),
+                );
+              }
             },
           ),
           ListTile(
             leading: const Icon(Icons.schedule),
-            title: const Text('Lecture Schedule'),
+            title: Text(
+              'Lecture Schedule',
+              style: TextStyle(
+                color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
+              ),
+            ),
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => const LectureScheduleScreen()),
-              );
+              if (isSignedIn) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const LectureScheduleScreen()),
+                );
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const SignInScreen()),
+                );
+              }
             },
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
-            title: const Text('Notifications'),
+            title: Text(
+              'Notifications',
+              style: TextStyle(
+                color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
+              ),
+            ),
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => const NotificationsScreen()),
-              );
+              if (isSignedIn) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const NotificationsScreen()),
+                );
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const SignInScreen()),
+                );
+              }
             },
           ),
           ListTile(
