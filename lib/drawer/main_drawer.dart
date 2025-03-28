@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:nahrain_univ/UpdateInfoScreen.dart';
 import 'package:nahrain_univ/si/signin.dart';
 import 'about_screen.dart';
 import 'lecture_schedule_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
- // Import the Sign-In screen
+// Import the Sign-In screen
 
 class AppDrawer extends StatelessWidget {
   final Color nharaincol;
   final bool isSignedIn;
+  final String? userName;
 
-  const AppDrawer({super.key, required this.nharaincol, required this.isSignedIn});
+  const AppDrawer(
+      {super.key, required this.nharaincol, required this.isSignedIn, this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +47,7 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               if (isSignedIn) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (ctx) => const ProfileScreen()),
+                  MaterialPageRoute(builder: (ctx) => const UpdateInfoScreen()),
                 );
               } else {
                 Navigator.of(context).push(
@@ -64,7 +67,8 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               if (isSignedIn) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (ctx) => const LectureScheduleScreen()),
+                  MaterialPageRoute(
+                      builder: (ctx) => const LectureScheduleScreen()),
                 );
               } else {
                 Navigator.of(context).push(
@@ -84,7 +88,8 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               if (isSignedIn) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (ctx) => const NotificationsScreen()),
+                  MaterialPageRoute(
+                      builder: (ctx) => const NotificationsScreen()),
                 );
               } else {
                 Navigator.of(context).push(
@@ -102,6 +107,18 @@ class AppDrawer extends StatelessWidget {
               );
             },
           ),
+         if (isSignedIn && userName != null)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Welcome $userName',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                  fontSize: 14,
+                ),
+              ),
+            ),
         ],
       ),
     );

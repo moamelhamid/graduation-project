@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:nahrain_univ/drawer/main_drawer.dart';
 import 'package:nahrain_univ/markerdet/eng_details.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -21,6 +22,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+bool _isSignedIn = false;
+  String? _userName;
+
+
+Future<void> _checkAuthStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    setState(() {
+      _isSignedIn = token != null && token.isNotEmpty;
+      _userName = prefs.getString('username');
+    });
+  }
+
+
   Color nharaincol = const Color.fromARGB(255, 14, 66, 139);
 
   LatLngBounds alNahrainBounds = LatLngBounds(
@@ -88,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+   _checkAuthStatus();
     _checkLocationService(); // Check if location services are enabled
   }
 
@@ -204,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      endDrawer: const AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: false,),
+      endDrawer:  AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: _isSignedIn,userName: 'mmmmm',),
       body: Stack(
         children: [
           FlutterMap(
