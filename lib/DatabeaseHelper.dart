@@ -24,24 +24,16 @@ status = response.body.contains('error');
 
 
 var data = json.decode(response.body);
-if(status){
-  print('data: ${data["error"]}');
-}else{
-  print('data: ${data["token"]}');
-  _save(data["token"]);
-
-}
+if(!status) {
+    _save(data["token"], name); // Pass username to save
+  }
 }
 
-_save(String token) async{
- final prefs= await SharedPreferences.getInstance();
- final key ='token';
- final value = token;
-  
-  prefs.setString(key , value);
- 
+_save(String token, String username) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('token', token);
+  await prefs.setString('username', username); // Save username
 }
-
 
 read() async{
   final prefs = await SharedPreferences.getInstance();
@@ -49,4 +41,11 @@ read() async{
   final value = prefs.get(key) ?? 0;
   print('read: $value');
 }
+Future<void> logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('token'); 
+  await prefs.remove('username');
+  print('User logged out');
+}
+
 }

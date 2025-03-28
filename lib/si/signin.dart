@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nahrain_univ/DatabeaseHelper.dart';
 import 'package:nahrain_univ/UpdateInfoScreen.dart';
+import 'package:nahrain_univ/mapscr.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:nahrain_univ/mapscr.dart';
 //import 'package:nahrain_univ/si/sing_up.dart';
@@ -54,11 +55,10 @@ _onpressed(){
           );
 
         
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(
-              builder: (context) => UpdateInfoScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const MyHomePage()),
+            (Route<dynamic> route) => false,
           );
         }
       });

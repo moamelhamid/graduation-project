@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:nahrain_univ/UpdateInfoScreen.dart';
+import 'package:nahrain_univ/mapscr.dart';
 import 'package:nahrain_univ/si/signin.dart';
 import 'about_screen.dart';
 import 'lecture_schedule_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
-// Import the Sign-In screen
+import 'package:nahrain_univ/DatabeaseHelper.dart'; // استيراد DatabaseHelper
 
 class AppDrawer extends StatelessWidget {
   final Color nharaincol;
   final bool isSignedIn;
   final String? userName;
 
-  const AppDrawer(
-      {super.key, required this.nharaincol, required this.isSignedIn, this.userName});
+  const AppDrawer({
+    super.key,
+    required this.nharaincol,
+    required this.isSignedIn,
+    this.userName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +41,21 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
+          if (isSignedIn && userName != null)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Text(
+                  'Welcome $userName',
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 27, 80, 141),
+                    fontStyle: FontStyle.normal,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ListTile(
             leading: const Icon(Icons.account_circle),
             title: Text(
@@ -77,27 +97,27 @@ class AppDrawer extends StatelessWidget {
               }
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: Text(
-              'Notifications',
-              style: TextStyle(
-                color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
-              ),
-            ),
-            onTap: () {
-              if (isSignedIn) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (ctx) => const NotificationsScreen()),
-                );
-              } else {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (ctx) => const SignInScreen()),
-                );
-              }
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.notifications),
+          //   title: Text(
+          //     'Notifications',
+          //     style: TextStyle(
+          //       color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
+          //     ),
+          //   ),
+          //   onTap: () {
+          //     if (isSignedIn) {
+          //       Navigator.of(context).push(
+          //         MaterialPageRoute(
+          //             builder: (ctx) => const NotificationsScreen()),
+          //       );
+          //     } else {
+          //       Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (ctx) => const SignInScreen()),
+          //       );
+          //     }
+          //   },
+          // ),
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('About'),
@@ -107,17 +127,23 @@ class AppDrawer extends StatelessWidget {
               );
             },
           ),
-         if (isSignedIn && userName != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Welcome $userName',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
-                  fontSize: 14,
-                ),
+
+          if (isSignedIn)
+            ListTile(
+              leading: const Icon(Icons.exit_to_app, color: Colors.red),
+              title: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
               ),
+              onTap: () async {
+                final dbHelper = DatabaseHelper();
+                await dbHelper.logout(); // حذف التوكن
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyHomePage()),
+                  (Route<dynamic> route) => false,
+                ); // إغلاق الدرج
+              },
             ),
         ],
       ),

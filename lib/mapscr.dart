@@ -28,14 +28,17 @@ bool _isSignedIn = false;
 
 
 Future<void> _checkAuthStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  final username = prefs.getString('username'); // Add username retrieval
+
+  if (mounted) {
     setState(() {
       _isSignedIn = token != null && token.isNotEmpty;
-      _userName = prefs.getString('username');
+      _userName = username; // Add this line
     });
   }
+}
 
 
   Color nharaincol = const Color.fromARGB(255, 14, 66, 139);
@@ -104,10 +107,15 @@ Future<void> _checkAuthStatus() async {
 
   @override
   void initState() {
-    super.initState();
-   _checkAuthStatus();
-    _checkLocationService(); // Check if location services are enabled
-  }
+  super.initState();
+  
+  // Add this
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _checkAuthStatus();
+    _checkLocationService();
+  });
+}
+
 
   Future<void> _checkLocationService() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -222,7 +230,7 @@ Future<void> _checkAuthStatus() async {
           ),
         ),
       ),
-      endDrawer:  AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: _isSignedIn,userName: 'mmmmm',),
+      endDrawer:  AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: _isSignedIn,userName: _userName,),
       body: Stack(
         children: [
           FlutterMap(
@@ -461,6 +469,8 @@ Future<void> _checkAuthStatus() async {
       ),
     );
   }
+
+
 }
 
 TileLayer get openStreetMapTileLayer => TileLayer(
