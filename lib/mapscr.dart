@@ -6,11 +6,17 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart'; // For getting location
 import 'package:latlong2/latlong.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:nahrain_univ/ArchitecturalEngineeringScreen.dart';
+import 'package:nahrain_univ/CafeAndLibraryScreen.dart';
+import 'package:nahrain_univ/DeanshipScreen.dart';
+import 'package:nahrain_univ/EngineeringDepartmentsScreen.dart';
+import 'package:nahrain_univ/EngineeringLabsScreen.dart';
+import 'package:nahrain_univ/RegistrationDepartmentScreen.dart';
+import 'package:nahrain_univ/WorkshopBuildingScreen.dart';
 import 'package:nahrain_univ/drawer/main_drawer.dart';
 import 'package:nahrain_univ/markerdet/eng_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -22,30 +28,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-bool _isSignedIn = false;
+  bool _isSignedIn = false;
   String? _userName;
 
+  Future<void> _checkAuthStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final username = prefs.getString('username'); // Add username retrieval
 
-Future<void> _checkAuthStatus() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  final username = prefs.getString('username'); // Add username retrieval
-
-  if (mounted) {
-    setState(() {
-      _isSignedIn = token != null && token.isNotEmpty;
-      _userName = username; // Add this line
-    });
+    if (mounted) {
+      setState(() {
+        _isSignedIn = token != null && token.isNotEmpty;
+        _userName = username; // Add this line
+      });
+    }
   }
-}
-
 
   Color nharaincol = const Color.fromARGB(255, 14, 66, 139);
 
   LatLngBounds alNahrainBounds = LatLngBounds(
-    LatLng(33.2730, 44.3690), // Southwest boundary
-    LatLng(33.2860, 44.3840), // Northeast boundary
+    LatLng(33.2680, 44.3640), // Expanded southwest boundary
+    LatLng(33.2910, 44.3890), // Expanded northeast boundary
   );
 
   LatLng? currentLocation; // Variable to store current location
@@ -53,11 +56,11 @@ Future<void> _checkAuthStatus() async {
       false; // Flag to check if the user is inside the university
   StreamSubscription<Position>?
       _positionStreamSubscription; // To manage the location stream
-  double _currentZoom = 15.15; // Variable to store the current zoom level
+  double _currentZoom = 15.38; // Variable to store the current zoom level
   final MapController _mapController =
       MapController(); // To control map zoom and center
 
- List<LatLng> borderCoordinates = [
+  List<LatLng> borderCoordinates = [
     LatLng(33.275637, 44.372240),
     LatLng(33.275624, 44.372143),
     LatLng(33.277032, 44.372567),
@@ -104,18 +107,29 @@ Future<void> _checkAuthStatus() async {
     LatLng(33.275637, 44.372240),
   ];
 
-
   @override
   void initState() {
-  super.initState();
-  
-  // Add this
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    _checkAuthStatus();
-    _checkLocationService();
-  });
-}
+    super.initState();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthStatus();
+      _checkLocationService();
+      _checkInternetConnection();
+    });
+  }
+
+  Future<void> _checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No internet connection. Please check your network.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 8),
+        ),
+      );
+    }
+  }
 
   Future<void> _checkLocationService() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -123,7 +137,8 @@ Future<void> _checkAuthStatus() async {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Location services are disabled. Please enable them in your settings.')),
+            content: Text(
+                'Location services are disabled. Please enable them in your settings.')),
       );
     } else {
       _checkAndRequestLocationPermission();
@@ -171,7 +186,8 @@ Future<void> _checkAuthStatus() async {
           if (insideBounds) {
             currentLocation = userLocation;
             isInUniversityArea = true;
-            _currentZoom = 17.0; // Set the zoom level when inside the university
+            _currentZoom =
+                17.0; // Set the zoom level when inside the university
             _mapController.move(currentLocation!, _currentZoom);
           } else {
             isInUniversityArea = false;
@@ -197,10 +213,11 @@ Future<void> _checkAuthStatus() async {
     for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
       if ((polygon[i].longitude > point.longitude) !=
               (polygon[j].longitude > point.longitude) &&
-          (point.latitude < (polygon[j].latitude - polygon[i].latitude) *
-                  (point.longitude - polygon[i].longitude) /
-                  (polygon[j].longitude - polygon[i].longitude) +
-              polygon[i].latitude)) {
+          (point.latitude <
+              (polygon[j].latitude - polygon[i].latitude) *
+                      (point.longitude - polygon[i].longitude) /
+                      (polygon[j].longitude - polygon[i].longitude) +
+                  polygon[i].latitude)) {
         inside = !inside;
       }
     }
@@ -209,7 +226,8 @@ Future<void> _checkAuthStatus() async {
 
   @override
   void dispose() {
-    _positionStreamSubscription?.cancel(); // Cancel the location stream when the widget is disposed
+    _positionStreamSubscription
+        ?.cancel(); // Cancel the location stream when the widget is disposed
     super.dispose();
   }
 
@@ -230,7 +248,11 @@ Future<void> _checkAuthStatus() async {
           ),
         ),
       ),
-      endDrawer:  AppDrawer(nharaincol: Color.fromARGB(255, 14, 66, 139), isSignedIn: _isSignedIn,userName: _userName,),
+      endDrawer: AppDrawer(
+        nharaincol: const Color.fromARGB(255, 14, 66, 139),
+        isSignedIn: _isSignedIn,
+        userName: _userName,
+      ),
       body: Stack(
         children: [
           FlutterMap(
@@ -263,7 +285,8 @@ Future<void> _checkAuthStatus() async {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color.fromARGB(255, 66, 134, 244).withOpacity(0.6),
+                              color: const Color.fromARGB(255, 66, 134, 244)
+                                  .withOpacity(0.6),
                               blurRadius: 14,
                               spreadRadius: 8,
                               offset: const Offset(0, 0),
@@ -277,30 +300,14 @@ Future<void> _checkAuthStatus() async {
                         ),
                       ),
                     ),
-                    
+
                   Marker(
                     point: LatLng(33.280084, 44.375086),
-                    builder: (ctx) => Icon(
-                      Icons.location_on_rounded,
-                      size: markerSize,
-                      color: nharaincol,
-                    ),
-                  ),
-                  Marker(
-                    point: LatLng(33.281010, 44.379122),
-                    builder: (ctx) => Icon(
-                      Icons.location_on_rounded,
-                      size: markerSize,
-                      color: nharaincol,
-                    ),
-                  ),
-                  Marker(
-                    point: LatLng(33.278413, 44.374887),
                     builder: (ctx) => GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (ctx) => const DepartmentsListScreen(),
+                            builder: (ctx) => EngineeringDepartmentsScreen(),
                           ),
                         );
                       },
@@ -311,13 +318,22 @@ Future<void> _checkAuthStatus() async {
                       ),
                     ),
                   ),
+                  // Marker(
+                  //   point: LatLng(33.281010, 44.379122),
+                  //   builder: (ctx) => Icon(
+                  //     Icons.location_on_rounded,
+                  //     size: markerSize,
+                  //     color: nharaincol,
+                  //   ),
+                  // ),
+                  ///////////////////////////////
                   Marker(
                     point: LatLng(33.279828, 44.374745),
                     builder: (ctx) => GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (ctx) => const DepartmentsListScreen(),
+                            builder: (ctx) => CafeAndLibraryScreen(),
                           ),
                         );
                       },
@@ -334,7 +350,7 @@ Future<void> _checkAuthStatus() async {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (ctx) => const DepartmentsListScreen(),
+                            builder: (ctx) => WorkshopBuildingScreen(),
                           ),
                         );
                       },
@@ -351,7 +367,7 @@ Future<void> _checkAuthStatus() async {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (ctx) => const DepartmentsListScreen(),
+                            builder: (ctx) => EngineeringLabsScreen (),
                           ),
                         );
                       },
@@ -368,14 +384,14 @@ Future<void> _checkAuthStatus() async {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (ctx) => const DepartmentsListScreen(),
+                            builder: (ctx) => DeanshipScreen(),
                           ),
                         );
                       },
                       child: Icon(
                         Icons.location_on_rounded,
                         size: markerSize,
-                        color: const Color.fromARGB(255, 202, 19, 19),
+                        color: const Color.fromARGB(203, 19, 19, 202),
                       ),
                     ),
                   ),
@@ -385,7 +401,7 @@ Future<void> _checkAuthStatus() async {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (ctx) => const DepartmentsListScreen(),
+                            builder: (ctx) => RegistrationDepartmentScreen(),
                           ),
                         );
                       },
@@ -398,6 +414,23 @@ Future<void> _checkAuthStatus() async {
                   ),
                   Marker(
                     point: LatLng(33.276951, 44.375630),
+                    builder: (ctx) => GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => ArchitecturalEngineeringScreen  (),
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        Icons.location_on_rounded,
+                        size: markerSize,
+                        color: nharaincol,
+                      ),
+                    ),
+                  ),
+                  Marker(
+                    point: LatLng(33.278339, 44.374758),
                     builder: (ctx) => GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
@@ -469,8 +502,6 @@ Future<void> _checkAuthStatus() async {
       ),
     );
   }
-
-
 }
 
 TileLayer get openStreetMapTileLayer => TileLayer(

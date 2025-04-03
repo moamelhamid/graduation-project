@@ -4,8 +4,6 @@ import 'package:nahrain_univ/mapscr.dart';
 import 'package:nahrain_univ/si/signin.dart';
 import 'about_screen.dart';
 import 'lecture_schedule_screen.dart';
-import 'notifications_screen.dart';
-import 'profile_screen.dart';
 import 'package:nahrain_univ/DatabeaseHelper.dart'; // استيراد DatabaseHelper
 
 class AppDrawer extends StatelessWidget {
@@ -61,7 +59,9 @@ class AppDrawer extends StatelessWidget {
             title: Text(
               'Profile',
               style: TextStyle(
-                color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
+                color: isSignedIn
+                    ? Colors.black
+                    : const Color.fromARGB(255, 188, 0, 0).withOpacity(0.45),
               ),
             ),
             onTap: () {
@@ -81,14 +81,13 @@ class AppDrawer extends StatelessWidget {
             title: Text(
               'Lecture Schedule',
               style: TextStyle(
-                color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
+                color: isSignedIn ? Colors.black : const Color.fromARGB(255, 188, 0, 0).withOpacity(0.45),
               ),
             ),
             onTap: () {
               if (isSignedIn) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (ctx) => const LectureScheduleScreen()),
+                  MaterialPageRoute(builder: (ctx) => LectureScheduleScreen()),
                 );
               } else {
                 Navigator.of(context).push(
@@ -97,27 +96,6 @@ class AppDrawer extends StatelessWidget {
               }
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.notifications),
-          //   title: Text(
-          //     'Notifications',
-          //     style: TextStyle(
-          //       color: isSignedIn ? Colors.black : Colors.blue.withOpacity(0.6),
-          //     ),
-          //   ),
-          //   onTap: () {
-          //     if (isSignedIn) {
-          //       Navigator.of(context).push(
-          //         MaterialPageRoute(
-          //             builder: (ctx) => const NotificationsScreen()),
-          //       );
-          //     } else {
-          //       Navigator.of(context).push(
-          //         MaterialPageRoute(builder: (ctx) => const SignInScreen()),
-          //       );
-          //     }
-          //   },
-          // ),
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('About'),
@@ -127,7 +105,6 @@ class AppDrawer extends StatelessWidget {
               );
             },
           ),
-
           if (isSignedIn)
             ListTile(
               leading: const Icon(Icons.exit_to_app, color: Colors.red),

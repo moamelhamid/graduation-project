@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nahrain_univ/DatabeaseHelper.dart';
-import 'package:nahrain_univ/UpdateInfoScreen.dart';
 import 'package:nahrain_univ/mapscr.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:nahrain_univ/mapscr.dart';
-//import 'package:nahrain_univ/si/sing_up.dart';
-
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -15,64 +11,55 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _passkeyController = TextEditingController();
+  String _msgStatus = '';
+  bool _isLoading = false;
 
-read() async{
-  final prefs = await SharedPreferences.getInstance();
-  final key='token';
-  final value = prefs.get(key) ?? 0;
-  if(value !='0' );
-}
-//   @override
-//   initState(){
-//     read();
-//   }
-
-
-
-
-
-  DatabaseHelper databaseHelper =  DatabaseHelper();
-  String msgstatus = '';
-final TextEditingController _nameController =  TextEditingController();
-final TextEditingController _passkeyController =  TextEditingController();
-
-_onpressed(){
-  setState(() {
-    if(_nameController.text.isNotEmpty && _passkeyController.text.isNotEmpty){
-      databaseHelper.loginData(_nameController.text, _passkeyController.text).whenComplete(() {
-        if(databaseHelper.status){
-          _showDialog();
-           msgstatus = 'Check your name or passkey';
-        print ("{$_nameController.text.isNotEmpty}" "${_passkeyController.text.isNotEmpty}");
-        }else {
-       
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login successful!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-
-        
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MyHomePage()),
-            (Route<dynamic> route) => false,
-          );
-        }
-      });
+  Future<void> _attemptLogin() async {
+    if (_nameController.text.isEmpty || _passkeyController.text.isEmpty) {
+      setState(() => _msgStatus = 'Please fill in all fields');
+      return;
     }
-  });
-}
 
+    setState(() {
+      _isLoading = true;
+      _msgStatus = '';
+    });
+
+    try {
+      final success = await _databaseHelper.loginData(
+        _nameController.text,
+        _passkeyController.text,
+      );
+
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+          (Route<dynamic> route) => false,
+        );
+      } else {
+        _showErrorDialog('Invalid credentials');
+        setState(() => _msgStatus = 'Check your name or passkey');
+      }
+    } catch (e) {
+      _showErrorDialog('Login error: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double formPadding = screenWidth * 0.1;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final formPadding = screenWidth * 0.1;
 
-    return Scaffold(appBar: AppBar(title: const Text('Sign In')),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign In')),
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: formPadding),
@@ -94,79 +81,61 @@ _onpressed(){
                   labelText: 'Name',
                   hintText: 'Enter your name',
                   prefixIcon: const Icon(Icons.person),
-                  
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+        const SizedBox(height: 20),
               TextField(
                 controller: _passkeyController,
                 obscureText: true,
                 decoration: InputDecoration(
+                  labelText: 'Passkey',
                   hintText: 'Enter your passkey',
-                  labelText: 'passkey',
                   prefixIcon: const Icon(Icons.lock),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
+                ),)
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _onpressed,
+            ElevatedButton(
+                onPressed: _isLoading ? null : _attemptLogin,
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(screenWidth * 0.7, 50),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                    borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Sign In'),
+                child: _isLoading 
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Sign In'),
               ),
               const SizedBox(height: 20),
-
-              Container(
-                height: 50,
-                child:  Text(
-                  msgstatus,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              )
-
-
-
-
-            
+              Text(
+                _msgStatus,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.red.shade700,
+                  fontWeight: FontWeight.bold)),
             ],
           ),
         ),
       ),
     );
-    
   }
 
-void _showDialog(){
-  showDialog(
-    context: context,
-    builder: (BuildContext context){
-      return AlertDialog(
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
         title: const Text('Error'),
-        content: const Text('Check your name or passkey'),
-        actions: <Widget>[
+        content: Text(message),
+        actions: [
           TextButton(
-            onPressed: (){
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          )
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK')),
         ],
-      );
-    },
-  );
+      ),
+    );
+  }
 }
-}
-
-

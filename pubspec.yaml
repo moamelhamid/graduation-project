@@ -2,7 +2,7 @@ name: nahrain_univ
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -31,18 +31,19 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   google_fonts: 4.0.4
   flutter_map: ^4.0.0
   latlong2: ^0.8.1
+  connectivity_plus: ^5.0.2
   carousel_slider: ^5.0.0
   geolocator: ^9.0.1
   flutter_launcher_icons: "^0.13.1"
   material_design_icons_flutter: ^7.0.7296
   http: ^0.13.6
+  cached_network_image: ^3.2.0
   shared_preferences: ^2.5.2
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -52,9 +53,6 @@ flutter_launcher_icons:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-    
-
-
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -68,7 +66,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -90,6 +87,35 @@ flutter:
     - assets/images/comp1.jpg
     - assets/images/comp2.jpg
     - assets/images/gen.jpg
+    - assets/lib1.jpg
+    - assets/les1.jpg
+    - assets/les2.jpg
+    - assets/les3.jpg
+    - assets/han1.jpg
+    - assets/han2.jpg
+    - assets/hall.jpg
+    - assets/hall2.jpg
+    - assets/hall3.jpg
+    - assets/mec1.jpg
+    - assets/mec2.jpg
+    - assets/workshop1.jpg
+    - assets/workshop2.jpg
+    - assets/workshop3.jpg
+    - assets/den1.jpg
+    - assets/den2.jpg
+    - assets/den3.jpg
+    - assets/den4.jpg
+    - assets/den5.jpg
+    - assets/den6.jpg
+    - assets/den7.jpg
+    - assets/comp1.jpg
+    - assets/comp2.jpg
+    - assets/comp3.jpg
+    - assets/civileng1.jpg
+    - assets/civileng2.jpg
+    - assets/centereng.jpg
+    - assets/cem1.jpg
+    - assets/cem2.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
